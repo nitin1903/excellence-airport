@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  form(name='get_airport')
+    select(name= 'airport_types')
+      option(value='') Choose Airport Type
+      each type of airportTypes
+        option(value=type) #{type}
+    select(name= 'city_names')
+      option(value='') Choose City Name
+      each city of cityNames
+        option(value=city) #{city}
+    select(name= 'county_names')
+      option(value='') Choose County Name
+      each county of countyNames
+        option(value=county) #{county}
+    input(type='submit' value='Get Airports')
+
+  div(class='airport-list-form')
+    div(class='airport-list')
+      table
+
+    div(class='airport-list-search')
+      input(type='button' id='get-distance' value='Get Distance')
+      input(type='button' id='get-nearest' value='Get Three Nearest')
+    div(class='error' id='error-div')
+    div(class='result' id='result-div')
+  script(src='/javascripts/index.js')
