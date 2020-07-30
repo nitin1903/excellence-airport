@@ -26,7 +26,8 @@ getThreeNearestButton.addEventListener("click", function (ev) {
     return;
   }
   let url = new URL(
-    `/${selctedAirports[0].value}`, window.location.href
+    `/api/airports/three-nearest/${selctedAirports[0].value}`,
+    window.location.href
   );
   loadDoc(url, displayResultList);
 });
