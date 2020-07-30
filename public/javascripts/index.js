@@ -1,10 +1,9 @@
 const airportForm = document.forms.namedItem("get_airport");
 
-let httpRequest;
 airportForm.addEventListener("submit", function (ev) {
   ev.preventDefault();
   const oData = new FormData(airportForm);
-  let url = new URL("http://localhost:3000/api/airports");
+  let url = new URL("/api/airports", window.location.href);
   for (let pair of oData.entries()) {
     url.searchParams.append(pair[0], pair[1]);
   }
@@ -27,9 +26,27 @@ getThreeNearestButton.addEventListener("click", function (ev) {
     return;
   }
   let url = new URL(
-    `http://localhost:3000/api/airports/three-nearest/${selctedAirports[0].value}`
+    `/${selctedAirports[0].value}`, window.location.href
   );
   loadDoc(url, displayResultList);
+});
+
+getDistanceButton.addEventListener("click", function (ev) {
+  clearError();
+  clearResult();
+  const selctedAirports = document.querySelectorAll(
+    'input[name="airports[]"]:checked'
+  );
+  console.log(selctedAirports.length);
+  if (selctedAirports.length != 2) {
+    displayError({ message: "select two airports" });
+    return;
+  }
+  let url = new URL("/api/airports/distance", window.location.href);
+  url.searchParams.append("airport1SiteNumber", selctedAirports[0].value);
+  url.searchParams.append("airport2SiteNumber", selctedAirports[1].value);
+  console.log(url);
+  loadDoc(url, displayResult);
 });
 
 function displayResultList(httpRequest) {
@@ -60,24 +77,6 @@ function displayResultList(httpRequest) {
   resultDiv.classList.add("active");
 }
 
-getDistanceButton.addEventListener("click", function (ev) {
-  clearError();
-  clearResult();
-  const selctedAirports = document.querySelectorAll(
-    'input[name="airports[]"]:checked'
-  );
-  console.log(selctedAirports.length);
-  if (selctedAirports.length != 2) {
-    displayError({ message: "select two airports" });
-    return;
-  }
-  let url = new URL("http://localhost:3000/api/airports/distance");
-  url.searchParams.append("airport1SiteNumber", selctedAirports[0].value);
-  url.searchParams.append("airport2SiteNumber", selctedAirports[1].value);
-  console.log(url);
-  loadDoc(url, displayResult);
-});
-
 function displayResult(httpRequest) {
   const distance = JSON.parse(httpRequest.responseText);
   const resultDiv = document.getElementById("result-div");
@@ -104,22 +103,6 @@ function displayError(err) {
   errorDiv.classList.add("active");
 }
 
-function loadDoc(url, callBack) {
-  let httpRequest;
-  httpRequest = new XMLHttpRequest();
-  httpRequest.onreadystatechange = function () {
-    if (this.readyState == 4) {
-      if ((this.status = 200)) {
-        callBack(this);
-      } else {
-        displayError(this);
-      }
-    }
-  };
-  httpRequest.open("GET", url);
-  httpRequest.send();
-}
-
 function listAirports(httpRequest) {
   const airports = JSON.parse(httpRequest.responseText);
   console.log(airports);
@@ -137,7 +120,6 @@ function listAirports(httpRequest) {
   }
   listTable.appendChild(headerTr);
   for (airport of airports) {
-    //let label = document.createElement('label')
     let checkbox = document.createElement("input");
     checkbox.setAttribute("type", "checkbox");
     checkbox.setAttribute("name", "airports[]");
@@ -154,4 +136,20 @@ function listAirports(httpRequest) {
     listTable.appendChild(tr);
   }
   listDiv.replaceChild(listTable, listDiv.childNodes[0]);
+}
+
+function loadDoc(url, callBack) {
+  let httpRequest;
+  httpRequest = new XMLHttpRequest();
+  httpRequest.onreadystatechange = function () {
+    if (this.readyState == 4) {
+      if ((this.status = 200)) {
+        callBack(this);
+      } else {
+        displayError(this);
+      }
+    }
+  };
+  httpRequest.open("GET", url);
+  httpRequest.send();
 }
